@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <script type="text/javascript">
+        if (String.prototype.splice === undefined) {
+          /**
+           * Splices text within a string.
+           * @param {int} offset The position to insert the text at (before)
+           * @param {string} text The text to insert
+           * @param {int} [removeCount=0] An optional number of characters to overwrite
+           * @returns {string} A modified string containing the spliced text.
+           */
+          String.prototype.splice = function(offset, text, removeCount=0) {
+            let calculatedOffset = offset < 0 ? this.length + offset : offset;
+            return this.substring(0, calculatedOffset) +
+              text + this.substring(calculatedOffset + removeCount);
+          };
+        }
+    </script>
+</head>
+<body>
+
+    <button id="update-pie-chart">Update Data</button>
+    <div id="pie-chart"></div>
+    <div id="bar-chart"></div>
+    <div id="line-chart"></div>
+
+    <script type="text/javascript">
+        $.get('/api/education/school-enrollment-primary-by-income-group/umc', (data) => {
+            window.arr = [
+                ['year', 'WORLD']
+            ]
+            for (let year of data) {
+                arr.push([year['year'].toString(), parseFloat(year['sc_enr_primary'].toString().splice(2, '.'))])
+            }
+
+            const lineChart = {
+            chart: null,
+            data: arr,
+            element: '#line-chart',
+            options: {
+                title: 'School enrollment, primary (% net)',
+                width: 900,
+                height: 700
+            }
+            }
+
+            const init = () => {
+
+            lineChart.chart = new google.visualization.LineChart(
+                document.querySelector(lineChart.element)
+            )
+                lineChart.chart.draw(
+                google.visualization.arrayToDataTable(lineChart.data),
+                lineChart.options
+            )
+            }
+
+            google.charts.load('current', {
+            packages: ['corechart'],
+            callback: init
+            })
+        })
+    </script>
+    
+    <script type="text/javascript">
+
+        /*document.querySelector('#update-pie-chart').addEventListener('click', () => {
+        pieChart.data = [
+            ['Product', 'Sales'],
+            ['Laptops', 1508],
+            ['Desktops', 1497],
+            ['Cameras', 360],
+            ['Phones', 1790],
+            ['Accessories', 518]
+        ];
+        pieChart.chart.draw(
+            google.visualization.arrayToDataTable(pieChart.data),
+            pieChart.options
+        );
+        });*/
+
+    </script>
+</body>
+</html>
